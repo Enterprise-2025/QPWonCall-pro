@@ -9,13 +9,13 @@
   // ==============
   // CONFIG & KEYS
   // ==============
-  const SCHEMA_VERSION = 2;
+  const SCHEMA_VERSION = 3;
   const LS_KEY = "qpwonc_v2";
-  const TZ = "Europe/Rome"; // informativo; usiamo l'ora locale del browser
+  const THEME_KEY = "qpwon_theme";
   const DATE_FMT = { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" };
 
   // Heat thresholds default
-  const DEFAULT_WEIGHTS = { dolore: 30, urgenza: 15, valore: 15, recency: 0 }; // slider default (somma soft)
+  const DEFAULT_WEIGHTS = { dolore: 30, urgenza: 15, valore: 15, recency: 0 }; // slider default
   const HEAT_THRESHOLDS = { cold: 0, warm: 40, hot: 70 };
 
   const STATE = {
@@ -77,12 +77,10 @@
     try {
       const raw = localStorage.getItem(LS_KEY);
       if (!raw) {
-        // Prima esecuzione: stato vergine
         persist();
         return;
       }
       const parsed = JSON.parse(raw);
-      // Migrazioni semplici
       if (!parsed.schema || parsed.schema < SCHEMA_VERSION) {
         migrate(parsed);
       } else {
@@ -92,9 +90,7 @@
       console.warn("Errore loadState:", e);
     }
   }
-
   function migrate(oldState) {
-    // Esempio migrazione minima
     const migrated = { ...STATE, ...oldState };
     if (!migrated.settings) migrated.settings = STATE.settings;
     if (!migrated.templates) migrated.templates = defaultTemplates();
@@ -103,7 +99,6 @@
     Object.assign(STATE, migrated);
     persist();
   }
-
   function persist() {
     localStorage.setItem(LS_KEY, JSON.stringify(STATE));
   }
@@ -180,7 +175,6 @@
     if (ageDays <= 2) recency += 5;
     const lastRecall = (lead.timeline || []).slice().reverse().find((t) => t.type === "recall");
     if (lastRecall && lastRecall.when && lastRecall.when < Date.now()) {
-      // Recall scaduto → spingiamo su
       recency += 5;
     }
     recency = clamp(recency, -10, 10);
@@ -189,14 +183,13 @@
     lead.heatScore = score;
     lead.heat = score >= HEAT_THRESHOLDS.hot ? "Caldo" : score >= HEAT_THRESHOLDS.warm ? "Tiepido" : "Freddo";
 
-    // Diagnosi + Reason + Script
+    // Diagnosi + Reason
     const pains = [];
     if (lead.overbooking) pains.push("chiamate perse / sovrapposizioni");
     if (lead.visibilita) pains.push("visibilità online bassa / pochi nuovi pazienti");
     if (lead.urgenza) pains.push("urgenza interna");
 
     lead.diagnosi = pains.length ? `Dolore: ${pains.join(" + ")}.` : "Quadro da chiarire: raccogliamo 3 info in 5’.";
-
     const impatto = estimateImpact(lead);
     lead.reason = `Obiettivo: +€${formatNum(impatto)}/mese e tempo segreteria risparmiato.`;
 
@@ -207,7 +200,6 @@
   }
 
   function estimateImpact(lead) {
-    // Impatto € stimato: proporzionale al valore lead o fallback su valore medio appuntamento
     const base = lead.valore > 0 ? lead.valore : (STATE.settings.meetValue || 400);
     const factor = lead.heat === "Caldo" ? 1.0 : lead.heat === "Tiepido" ? 0.6 : 0.35;
     return Math.round(base * (STATE.settings.conv / 100 || 0.3) * (lead.nmedici > 0 ? 1 + lead.nmedici / 20 : 1) * factor);
@@ -235,7 +227,6 @@
   function validPhone(p) {
     if (!p) return false;
     const d = p.replace(/\D/g, "");
-    // Italia tipico: 9-12 cifre; accettiamo anche con +39
     return d.length >= 9 && d.length <= 13;
   }
   function ensurePrefixIT(p) {
@@ -273,7 +264,7 @@
   // SLOTS & CALENDAR
   // ==================
   function nextWorkingDaysSlots() {
-    // Genera due slot (domani e dopodomani) a 10:30 e 16:30, evitando weekend e 12:30–14:30
+    // Genera due slot (domani e dopodomani) a 10:30 e 16:30, evitando weekend
     const slots = [];
     let date = new Date();
     for (let i = 1; slots.length < 2 && i <= 7; i++) {
@@ -285,16 +276,10 @@
       const s2 = new Date(d); s2.setHours(16, 30, 0, 0);
       slots.push(s1, s2);
     }
-    // ritorna i primi 2
     return slots.slice(0, 2);
   }
-
-  function fmtSlotHuman(d) {
-    return d.toLocaleString("it-IT", DATE_FMT);
-  }
-
+  function fmtSlotHuman(d) { return d.toLocaleString("it-IT", DATE_FMT); }
   function googleCalendarUrl({ title, details, start, end }) {
-    // start/end in formato YYYYMMDDTHHMMSSZ
     const s = toGCalISO(start);
     const e = toGCalISO(end);
     const params = new URLSearchParams({
@@ -306,7 +291,6 @@
     return `https://calendar.google.com/calendar/render?${params.toString()}`;
   }
   function toGCalISO(date) {
-    // Usa UTC ISO string senza separatori
     const z = new Date(date);
     const iso = z.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
     return iso;
@@ -318,15 +302,34 @@
   function updateKPI() {
     const total = STATE.leads.length;
     const hot = STATE.leads.filter((l) => l.heat === "Caldo").length;
-    const today = new Date(); today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1);
-    const recallToday = STATE.leads.filter((l) => (l.timeline || []).some((t) => t.type === "recall" && t.when >= +today && t.when < +tomorrow)).length;
+
+    const startDay = new Date(); startDay.setHours(0,0,0,0);
+    const endDay = new Date(startDay); endDay.setDate(endDay.getDate() + 1);
+
+    const recallToday = STATE.leads.filter((l) =>
+      (l.timeline || []).some((t) => t.type === "recall" && t.when >= +startDay && t.when < +endDay)
+    ).length;
+
     const booked = STATE.leads.filter((l) => l.status === "booked").length;
+
+    // Calls
+    let callsToday = 0, answeredToday = 0;
+    for (const l of STATE.leads) {
+      for (const t of (l.timeline || [])) {
+        if (t.type === "call" && t.at >= +startDay && t.at < +endDay) {
+          callsToday++;
+          if (t.outcome === "answered") answeredToday++;
+        }
+      }
+    }
+    const rate = callsToday ? Math.round((answeredToday / callsToday) * 100) : 0;
 
     $("#kpi-total").textContent = total;
     $("#kpi-hot").textContent = hot;
     $("#kpi-recall").textContent = recallToday;
     $("#kpi-meetings").textContent = booked;
+    $("#kpi-calls-today").textContent = callsToday;
+    $("#kpi-call-rate").textContent = rate + "%";
 
     // Quota
     const target = Number(STATE.settings.target || 0);
@@ -339,10 +342,7 @@
     $("#quota-amount").textContent = `€ ${formatNum(value)} / € ${formatNum(target)}`;
     $("#quota-progress").style.width = pct + "%";
   }
-
-  function sameMonth(a, b) {
-    return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
-  }
+  function sameMonth(a, b) { return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth(); }
 
   // =======================
   // RENDER: OGGI (PRIORITY)
@@ -352,10 +352,8 @@
     if (!root) return;
     root.innerHTML = "";
 
-    // Search filter
     const q = ($("#search-today").value || "").toLowerCase();
 
-    // Order: heat (Caldo > Tiepido > Freddo), recall due/overdue, new (≤2gg), valore desc
     const now = Date.now();
     const twoDays = 2 * 86400000;
     const scored = STATE.leads
@@ -382,11 +380,8 @@
         return (b.l.valore || 0) - (a.l.valore || 0);
       });
 
-    for (const { l } of scored) {
-      root.appendChild(rowLeadToday(l));
-    }
+    for (const { l } of scored) root.appendChild(rowLeadToday(l));
   }
-
   function rowLeadToday(lead) {
     const art = document.createElement("article");
     art.className = "row";
@@ -439,10 +434,7 @@
 
     return art;
   }
-
-  function heatClass(h) {
-    return h === "Caldo" ? "heat-hot" : h === "Tiepido" ? "heat-warm" : "heat-cold";
-  }
+  function heatClass(h) { return h === "Caldo" ? "heat-hot" : h === "Tiepido" ? "heat-warm" : "heat-cold"; }
 
   // =======================
   // RENDER: ONE-LEAD VIEW
@@ -465,13 +457,13 @@
     $("#lead-diagnosi").textContent = lead?.diagnosi || "—";
     $("#lead-reason").textContent = lead?.reason || "—";
 
-    // call script
+    // Script riassunto
     const imp = lead ? estimateImpact(lead) : 0;
     $("#call-script").textContent = lead
       ? `Ciao ${lead.referente || ""}, seguo poliambulatori su agenda unica e chiamate tracciate. Su casi simili portiamo ~€${formatNum(imp)}/mese e riduciamo il caos. Ti propongo 15’: ${slotShort(0)} o ${slotShort(1)}?`
       : "—";
 
-    // Focus strip: NBA + Slots
+    // Focus strip
     const nba = nextBestAction(lead);
     $("#focus-nba-label").textContent = nba.label;
     $("#btn-nba").disabled = !nba.action;
@@ -496,6 +488,7 @@
           t.type === "wa" ? "WhatsApp" :
           t.type === "recall" ? "Recall" :
           t.type === "booked" ? "Appuntamento fissato" :
+          t.type === "call" ? `Chiamata${t.outcome ? " (" + prettyOutcome(t.outcome) + ")" : ""}` :
           t.type === "note" ? "Nota" : t.type;
         row.textContent = `${label} — ${when.toLocaleString("it-IT", DATE_FMT)}${t.note ? " · " + t.note : ""}`;
         wrap.appendChild(row);
@@ -513,16 +506,24 @@
     // Suggested cases
     renderSuggestedCases(lead);
 
-    // Anteprima testi (puliti)
+    // Chip numero accanto a “Chiama”
+    $("#chip-call-number").textContent = lead?.telefono || "—";
+
+    // Pulizia anteprime
     $("#preview-email-subj").value = "";
     $("#preview-email-body").value = "";
     $("#preview-wa").value = "";
   }
-
   function slotShort(idx) {
     const s = nextWorkingDaysSlots()[idx];
     return s ? s.toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "—";
-    }
+  }
+  function prettyOutcome(o) {
+    return o === "answered" ? "ha risposto" :
+           o === "voicemail" ? "messaggio" :
+           o === "noanswer" ? "non risponde" :
+           o === "recall" ? "richiamare" : o;
+  }
 
   function renderSuggestedCases(lead) {
     const ul = $("#suggested-cases");
@@ -563,7 +564,7 @@
       } else {
         $("#preview-wa").value += "\n\n" + cs.snippet_wa;
       }
-    }, { once: true });
+    });
   }
 
   // ====================
@@ -639,7 +640,6 @@
       });
     });
   }
-
   function setStatus(lead, status) {
     if (!lead) return;
     lead.status = status;
@@ -647,7 +647,6 @@
     persist();
     renderAll();
   }
-
   function deleteLead(id) {
     const idx = STATE.leads.findIndex((x) => x.id === id);
     if (idx >= 0) {
@@ -701,7 +700,7 @@
       holder.appendChild(card);
     }
 
-    // Cases in Libreria sono statici in index.html; i bottoni li gestiamo qui:
+    // Cases actions (delegation, no once)
     $("#cases-list").addEventListener("click", (ev) => {
       const btn = ev.target.closest("button");
       if (!btn) return;
@@ -723,16 +722,14 @@
         switchTab("one-lead");
         toast("Inserito case in WhatsApp", "success");
       }
-    }, { once: true });
+    });
   }
 
   function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
   function escapeHtml(s) {
     return (s || "").replace(/[&<>"']/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[m]));
   }
-
   function samplePlaceholders() {
-    // Preleva dal lead selezionato se presente, altrimenti dummy
     const l = STATE.leads.find((x) => x.id === STATE.ui.selectedLeadId);
     const slots = nextWorkingDaysSlots();
     return {
@@ -744,12 +741,9 @@
       firma: STATE.settings.firma || ""
     };
   }
-
   function fillTemplate(tpl, data) {
     let out = tpl;
-    Object.entries(data).forEach(([k, v]) => {
-      out = out.replaceAll(`{${k}}`, v);
-    });
+    Object.entries(data).forEach(([k, v]) => { out = out.replaceAll(`{${k}}`, v); });
     return out;
   }
 
@@ -807,7 +801,7 @@
   }
 
   function proposeSlots() {
-    const lead = STATE.leads.find((x) => x.id === STATE.ui.selectedLeadId);
+    const lead = currentLead();
     if (!lead) { toast("Seleziona prima un lead", "danger"); return; }
     openDialog("modal-slots");
     const slots = nextWorkingDaysSlots();
@@ -820,11 +814,7 @@
     $("#slot-email").onclick = () => {
       closeDialog("modal-slots");
       const t = STATE.templates[lead.heat.toLowerCase()] || STATE.templates.tiepido;
-      const filled = fillTemplate(t.email, {
-        ...samplePlaceholders(),
-        slot1: fmtSlotHuman(slots[0]),
-        slot2: fmtSlotHuman(slots[1])
-      });
+      const filled = fillTemplate(t.email, { ...samplePlaceholders(), slot1: fmtSlotHuman(slots[0]), slot2: fmtSlotHuman(slots[1]) });
       $("#email-subject").value = t.subject;
       $("#email-body").value = filled;
       openDialog("modal-email");
@@ -832,11 +822,7 @@
     $("#slot-wa").onclick = () => {
       closeDialog("modal-slots");
       const t = STATE.templates[lead.heat.toLowerCase()] || STATE.templates.tiepido;
-      const filled = fillTemplate(t.wa, {
-        ...samplePlaceholders(),
-        slot1: fmtSlotHuman(slots[0]),
-        slot2: fmtSlotHuman(slots[1])
-      });
+      const filled = fillTemplate(t.wa, { ...samplePlaceholders(), slot1: fmtSlotHuman(slots[0]), slot2: fmtSlotHuman(slots[1]) });
       $("#wa-text").value = filled;
       openDialog("modal-wa");
     };
@@ -851,7 +837,6 @@
       openWinOrPopupWarn(url);
     };
   }
-
   function finalizeBooking(lead, slot) {
     closeDialog("modal-slots");
     lead.status = "booked";
@@ -860,13 +845,11 @@
     persist();
     renderAll();
     toast("Appuntamento fissato", "success");
-    // Apri Calendar su slot scelto
     const end = new Date(slot.getTime() + 30 * 60000);
     const url = googleCalendarUrl({
       title: `Call con ${lead.struttura}`,
       details: `Appuntamento fissato con ${lead.referente || ""} (${lead.citta}).`,
-      start: slot,
-      end
+      start: slot, end
     });
     openWinOrPopupWarn(url);
   }
@@ -877,11 +860,138 @@
     $("#email-body").value = fillTemplate(t.email, samplePlaceholders());
     openDialog("modal-email");
   }
-
   function openWAForLead(lead) {
     const t = STATE.templates[lead.heat.toLowerCase()] || STATE.templates.tiepido;
     $("#wa-text").value = fillTemplate(t.wa, samplePlaceholders());
     openDialog("modal-wa");
+  }
+
+  // ========================
+  // CALL MODAL (FLOW)
+  // ========================
+  const CALL = {
+    role: "referente",
+    timerId: null,
+    startAt: null
+  };
+
+  function openCallModal(lead) {
+    if (!lead) { toast("Seleziona prima un lead", "danger"); return; }
+    $("#call-number").value = lead.telefono || "";
+    $("#call-script-text").value = getCallScript(lead, "referente");
+    CALL.role = "referente";
+    // Set links (li aggiorniamo anche al click)
+    applyCallLinks(lead);
+    // Selettore ruoli
+    $$("#call-roles .chip").forEach(ch => ch.classList.remove("is-active"));
+    $$("#call-roles .chip")[0]?.classList.add("is-active");
+
+    // Timer reset
+    resetCallTimer();
+
+    openDialog("modal-call");
+  }
+
+  function getCallScript(lead, role) {
+    const slots = nextWorkingDaysSlots();
+    const p = {
+      referente: lead.referente || "Dott./Dott.ssa",
+      struttura: lead.struttura,
+      slot1: fmtSlotHuman(slots[0]),
+      slot2: fmtSlotHuman(slots[1]),
+      impatto: formatNum(estimateImpact(lead))
+    };
+    if (role === "referente") {
+      return `Ciao ${p.referente}, sono Alfonso di Docplanner/MioDottore. Lavoro con poliambulatori come ${p.struttura} su prenotazioni e chiamate. In 1’ capiamo se ha senso: oggi come gestite richieste da web/telefono? Se ti mostro come ridurre chiamate perse e avere agenda allineata, fissiamo 15’: ${p.slot1} o ${p.slot2}?`;
+    }
+    if (role === "segreteria") {
+      return `Buongiorno, sono Alfonso di Docplanner/MioDottore: aiutiamo strutture simili a ${p.struttura} su agenda unica e riduzione chiamate perse. Quando è comodo per ${p.referente}? Posso proporre due opzioni: ${p.slot1} o ${p.slot2}.`;
+    }
+    if (role === "referral") {
+      return `Ciao ${p.referente}, ci ha parlato di voi un collega. Centralizziamo le agende e recuperiamo chiamate perse (impatto medio ~€${p.impatto}/mese). Se vuoi, 15’ concreti: ${p.slot1} o ${p.slot2}?`;
+    }
+    // voicemail
+    return `Ciao ${p.referente}, sono Alfonso di Docplanner. Due idee rapide per ridurre chiamate perse e agende doppie. Ti scrivo su WhatsApp con due slot: ${p.slot1}/${p.slot2}. Se preferisci altri orari, dimmelo pure. Grazie.`;
+  }
+
+  function applyCallLinks(lead) {
+    const telBtn = $("#call-open-tel");
+    const waBtn = $("#call-open-wa");
+    const num = ensurePrefixIT(lead.telefono || STATE.settings.waNumber || "");
+    if (!validPhone(num)) {
+      telBtn.onclick = (e) => { e.preventDefault(); toast("Numero non valido", "danger"); };
+      waBtn.onclick = (e) => { e.preventDefault(); toast("Numero non valido", "danger"); };
+      return;
+    }
+    telBtn.href = "tel:" + num;
+    telBtn.onclick = () => {
+      // facoltativo: log "call start"
+      // Nota: l'effettiva chiamata non è tracciabile via browser; registriamo outcome via pulsanti.
+    };
+    waBtn.href = "https://wa.me/" + num.replace(/\D/g, "");
+    waBtn.onclick = (e) => {
+      e.preventDefault();
+      openWinOrPopupWarn(waBtn.href);
+    };
+  }
+
+  function resetCallTimer() {
+    clearInterval(CALL.timerId);
+    CALL.timerId = null;
+    CALL.startAt = null;
+    $("#call-timer").textContent = "00:00";
+    $("#call-timer-toggle").textContent = "Start";
+  }
+  function startCallTimer() {
+    if (CALL.timerId) return;
+    CALL.startAt = Date.now();
+    CALL.timerId = setInterval(() => {
+      const secs = Math.floor((Date.now() - CALL.startAt) / 1000);
+      const mm = String(Math.floor(secs / 60)).padStart(2, "0");
+      const ss = String(secs % 60).padStart(2, "0");
+      $("#call-timer").textContent = `${mm}:${ss}`;
+    }, 500);
+    $("#call-timer-toggle").textContent = "Stop";
+  }
+  function stopCallTimer() {
+    if (!CALL.timerId) return 0;
+    clearInterval(CALL.timerId);
+    const dur = Math.floor((Date.now() - CALL.startAt) / 1000) || 0;
+    CALL.timerId = null;
+    CALL.startAt = null;
+    $("#call-timer-toggle").textContent = "Start";
+    return dur;
+  }
+
+  function logCallOutcome(lead, outcome) {
+    const dur = CALL.startAt ? stopCallTimer() : 0;
+    lead.timeline.push({ type: "call", at: Date.now(), outcome, role: CALL.role, dur });
+    lead.updatedAt = Date.now();
+    if (outcome === "recall") {
+      // default recall +48h
+      const when = Date.now() + 48 * 3600000;
+      lead.timeline.push({ type: "recall", at: Date.now(), when });
+      lead.status = "doing";
+    }
+    persist();
+    renderAll();
+    toast("Chiamata registrata", "success");
+    closeDialog("modal-call");
+  }
+
+  function buildWARecap(lead) {
+    const slots = nextWorkingDaysSlots();
+    const slot1 = fmtSlotHuman(slots[0]);
+    const slot2 = fmtSlotHuman(slots[1]);
+    const hi = lead.referente ? `Ciao ${lead.referente},` : `Ciao,`;
+    return `${hi}
+ti lascio un promemoria rapido: agenda unica e chiamate tracciate per ${lead.struttura}. 
+Se va bene, fissiamo 15’: ${slot1} o ${slot2}? 
+In alternativa proponi tu un orario.
+
+Grazie,
+Alfonso
+${STATE.settings.firma ? "\n\n" + STATE.settings.firma : ""}`.trim();
   }
 
   // ========================
@@ -898,7 +1008,6 @@
     $("#set-firma").value = STATE.settings.firma || "";
     $("#set-wa-number").value = STATE.settings.waNumber || "";
   }
-
   function saveSettings() {
     STATE.settings.target = Number($("#set-target").value || 0);
     STATE.settings.conv = Number($("#set-conv").value || 0);
@@ -911,7 +1020,6 @@
     };
     STATE.settings.firma = $("#set-firma").value || "";
     STATE.settings.waNumber = $("#set-wa-number").value || "";
-    // rivalutiamo tutti i lead
     STATE.leads.forEach((l) => evaluateLead(l));
     persist();
     renderAll();
@@ -972,7 +1080,6 @@
           urgenza: (r[idx("urgenza")] || "0") === "1",
         };
         if (!payload.struttura || !payload.citta) continue;
-        // anti-duplicato: stessa struttura+città
         const dup = STATE.leads.find((l) => l.struttura.toLowerCase() === payload.struttura.toLowerCase() && l.citta.toLowerCase() === payload.citta.toLowerCase());
         if (dup) continue;
         const lead = newLead(payload);
@@ -1025,6 +1132,23 @@
   }
 
   // ============
+  // THEME TOGGLE
+  // ============
+  function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem(THEME_KEY, theme);
+  }
+  function initTheme() {
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved) applyTheme(saved);
+    else {
+      // rispetta il default dell'HTML (light) e persiste
+      const current = document.documentElement.getAttribute("data-theme") || "light";
+      applyTheme(current);
+    }
+  }
+
+  // ============
   // EVENT WIRING
   // ============
   function wireUI() {
@@ -1035,6 +1159,10 @@
     $("#search-today").addEventListener("input", renderToday);
 
     // Toolbar
+    $("#btn-theme").addEventListener("click", () => {
+      const cur = document.documentElement.getAttribute("data-theme") || "light";
+      applyTheme(cur === "light" ? "dark" : "light");
+    });
     $("#btn-new-lead").addEventListener("click", () => {
       $("#form-new-lead").reset();
       openDialog("modal-new-lead");
@@ -1066,12 +1194,8 @@
       data.overbooking = !!data.overbooking;
       data.visibilita = !!data.visibilita;
       data.urgenza = !!data.urgenza;
-      // anti-duplicato
       const dup = STATE.leads.find((l) => l.struttura.toLowerCase() === data.struttura.toLowerCase() && l.citta.toLowerCase() === data.citta.toLowerCase());
-      if (dup) {
-        toast("Lead già presente (stessa struttura e città)", "danger");
-        return;
-      }
+      if (dup) { toast("Lead già presente (stessa struttura e città)", "danger"); return; }
       const lead = newLead(data);
       STATE.leads.push(lead);
       persist();
@@ -1083,24 +1207,17 @@
 
     // Focus strip & Action Dock
     $("#btn-nba").addEventListener("click", () => {
-      const lead = STATE.leads.find((x) => x.id === STATE.ui.selectedLeadId);
+      const lead = currentLead();
       if (!lead) return;
       const nba = nextBestAction(lead);
       if (nba.action === "proponi") proposeSlots();
-      if (nba.action === "tiepidize") {
-        openEmailForLead(lead);
-        quickSetRecall(lead);
-      }
+      if (nba.action === "tiepidize") { openEmailForLead(lead); quickSetRecall(lead); }
       if (nba.action === "freddo") {
         openWAForLead(lead);
-        // recall 7gg
         lead.timeline.push({ type: "recall", at: Date.now(), when: Date.now() + 7 * 86400000 });
-        persist();
-        renderAll();
+        persist(); renderAll();
       }
-      if (nba.action === "fix-data") {
-        alert("Completa telefono o email del lead per procedere.");
-      }
+      if (nba.action === "fix-data") alert("Completa telefono o email del lead per procedere.");
     });
 
     $("#slot-1").addEventListener("click", () => { const l = currentLead(); if (l) { openDialog("modal-slots"); } });
@@ -1111,7 +1228,14 @@
     $("#btn-whatsapp").addEventListener("click", () => { const l = currentLead(); if (l) openWAForLead(l); });
     $("#btn-recall").addEventListener("click", () => { const l = currentLead(); if (l) quickSetRecall(l); });
 
-    // Preview area
+    // NEW: Chiama
+    $("#btn-call").addEventListener("click", () => {
+      const l = currentLead();
+      if (!l) { toast("Seleziona prima un lead", "danger"); return; }
+      openCallModal(l);
+    });
+
+    // Anteprima area (One-Lead)
     $("#btn-wa-clean").addEventListener("click", () => {
       const txt = $("#preview-wa").value;
       $("#preview-wa").value = sanitizeText(txt, 700);
@@ -1123,15 +1247,8 @@
       if (!cs) return;
       $("#preview-wa").value += "\n\n" + cs.snippet_wa;
     });
-
-    $("#btn-copy-email").addEventListener("click", () => {
-      copyToClipboard($("#preview-email-body").value || "");
-      toast("Email copiata", "success");
-    });
-    $("#btn-copy-wa").addEventListener("click", () => {
-      copyToClipboard($("#preview-wa").value || "");
-      toast("WhatsApp copiato", "success");
-    });
+    $("#btn-copy-email").addEventListener("click", () => { copyToClipboard($("#preview-email-body").value || ""); toast("Email copiata", "success"); });
+    $("#btn-copy-wa").addEventListener("click", () => { copyToClipboard($("#preview-wa").value || ""); toast("WhatsApp copiato", "success"); });
 
     // Save notes
     $("#btn-save-notes").addEventListener("click", () => {
@@ -1179,13 +1296,8 @@
       if (!validPhone(phone)) {
         const suggested = ensurePrefixIT(phone);
         const ask = confirm(`Numero non completo. Aggiungere prefisso? \n\n${phone} → ${suggested}`);
-        if (ask) {
-          phone = suggested;
-          l.telefono = phone;
-        } else {
-          toast("Numero non valido", "danger");
-          return;
-        }
+        if (ask) { phone = suggested; l.telefono = phone; }
+        else { toast("Numero non valido", "danger"); return; }
       }
       const text = sanitizeText($("#wa-text").value + (STATE.settings.firma ? `\n\n${STATE.settings.firma}` : ""), 900);
       const waLink = "https://wa.me/" + phone.replace(/\D/g, "") + "?text=" + encodeURIComponent(text);
@@ -1197,12 +1309,59 @@
       }
     });
 
+    // CALL modal: handlers
+    $("#call-copy").addEventListener("click", () => {
+      copyToClipboard($("#call-number").value || "");
+      toast("Numero copiato", "success");
+    });
+
+    $("#call-timer-toggle").addEventListener("click", () => {
+      if (CALL.timerId) stopCallTimer(); else startCallTimer();
+    });
+
+    $("#call-roles").addEventListener("click", (e) => {
+      const btn = e.target.closest(".chip");
+      if (!btn) return;
+      $$("#call-roles .chip").forEach(ch => ch.classList.remove("is-active"));
+      btn.classList.add("is-active");
+      CALL.role = btn.dataset.role;
+      const l = currentLead();
+      if (l) $("#call-script-text").value = getCallScript(l, CALL.role);
+    });
+
+    // Outcomes
+    $(".outcomes").addEventListener("click", (e) => {
+      const b = e.target.closest(".chip[data-outcome]");
+      if (!b) return;
+      const l = currentLead();
+      if (!l) return;
+      logCallOutcome(l, b.dataset.outcome);
+    });
+
+    // CTA from call
+    $("#call-cta-slots").addEventListener("click", () => { closeDialog("modal-call"); proposeSlots(); });
+    $("#call-cta-insert-case").addEventListener("click", () => {
+      const l = currentLead(); if (!l) return;
+      const key = ($("#call-case-select").value || "").toLowerCase();
+      const cs = STATE.cases[key];
+      if (!cs) return;
+      $("#call-script-text").value += `\n\n${cs.one_liner}`;
+      toast("Case inserito nello script", "success");
+    });
+    $("#call-cta-wa-recap").addEventListener("click", () => {
+      const l = currentLead(); if (!l) return;
+      const text = buildWARecap(l);
+      closeDialog("modal-call");
+      $("#wa-text").value = text;
+      openDialog("modal-wa");
+    });
+
     // Modal close buttons (generic)
     $$("dialog [data-close], dialog button[aria-label='Chiudi']").forEach((b) => {
       b.addEventListener("click", () => closeDialog(b.closest("dialog").id));
     });
 
-    // Settings
+    // Settings quick
     $("#btn-wa-web").addEventListener("click", () => openWinOrPopupWarn("https://web.whatsapp.com"));
     $("#btn-wa-test").addEventListener("click", () => {
       const n = ensurePrefixIT($("#set-wa-number").value);
@@ -1215,13 +1374,15 @@
     // Keyboard shortcuts
     document.addEventListener("keydown", (e) => {
       if (e.target.matches("input, textarea")) return;
-      if (e.key.toLowerCase() === "n") { $("#btn-new-lead").click(); }
-      if (e.key.toLowerCase() === "a") { $("#btn-proponi").click(); }
-      if (e.key.toLowerCase() === "e") { $("#btn-email").click(); }
-      if (e.key.toLowerCase() === "w") { $("#btn-whatsapp").click(); }
-      if (e.key.toLowerCase() === "r") { $("#btn-recall").click(); }
+      const k = e.key.toLowerCase();
+      if (k === "t") { $("#btn-theme").click(); }
+      if (k === "n") { $("#btn-new-lead").click(); }
+      if (k === "a") { $("#btn-proponi").click(); }
+      if (k === "e") { $("#btn-email").click(); }
+      if (k === "w") { $("#btn-whatsapp").click(); }
+      if (k === "r") { $("#btn-recall").click(); }
+      if (k === "c") { $("#btn-call").click(); }
       if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
-        // scorri lead (semplice: tra quelli in Oggi)
         const ids = STATE.leads.filter((l) => l.status === "todo" || l.status === "doing").map((l) => l.id);
         if (!ids.length) return;
         const idx = Math.max(0, ids.indexOf(STATE.ui.selectedLeadId));
@@ -1232,10 +1393,7 @@
     });
   }
 
-  function currentLead() {
-    return STATE.leads.find((x) => x.id === STATE.ui.selectedLeadId) || null;
-  }
-
+  function currentLead() { return STATE.leads.find((x) => x.id === STATE.ui.selectedLeadId) || null; }
   function renderAll() {
     updateKPI();
     renderToday();
@@ -1317,14 +1475,12 @@ Risultati: ~4.500 prenotazioni/anno, ~35% fuori orario, >400 recensioni.`,
   // BOOTSTRAP APP
   // =================
   function init() {
+    initTheme();
     loadState();
-
-    // Se non ci sono lead, nessun seed forzato (ambiente reale).
-    // Render iniziale
     wireUI();
     switchTab(STATE.ui.tab || "oggi");
     renderAll();
-    renderLibrary(); // per assicurare i bottoni libreria
+    renderLibrary();
   }
 
   document.addEventListener("DOMContentLoaded", init);
