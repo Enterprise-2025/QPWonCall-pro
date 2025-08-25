@@ -1,12 +1,13 @@
- /* QPWONCall v2 — style.css
-   Tema scuro, UI compatta ma ariosa, focus su “prossima azione”.
-   24x24 icons (stroke currentColor), tipografia Inter/system. */
+/* QPWONCall v2 — style.css
+   Tema scuro (default) + tema chiaro con override.
+   UI compatta ma ariosa, focus su “prossima azione”.
+   Icone 24x24 (stroke currentColor), tipografia Inter/system. */
 
 /* ============= */
 /* DESIGN TOKENS */
 /* ============= */
 :root{
-  /* colori base */
+  /* colori base (DARK) */
   --bg: #0B0F14;
   --card: #0F1520;
   --border: #1F2837;
@@ -61,6 +62,12 @@ small,.small{font-size:var(--cap)}
 .muted{color:var(--muted)}
 .hide-mobile{display:inline}
 
+/* utilities */
+.row-inline{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.spacer{flex:1}
+.label{color:var(--muted); font-size:12px}
+hr{border:0; border-top:1px solid var(--border); margin:var(--s4) 0}
+
 /* ====== ICON ====== */
 .icon{width:1.25rem;height:1.25rem;stroke:currentColor;fill:none;vertical-align:-0.2em}
 
@@ -112,6 +119,33 @@ small,.small{font-size:var(--cap)}
 .icon-btn:hover{background:#0d1420; box-shadow:var(--shadow)}
 .icon-btn.danger:hover{border-color:var(--danger); color:#ffd9df; background:#2a0f15}
 
+/* Chip (toggle/pill) */
+.chip{
+  display:inline-flex; align-items:center; gap:8px; height:32px; padding:0 12px;
+  border-radius:999px; border:1px solid var(--border); background:transparent; color:var(--text);
+  cursor:pointer; transition:all var(--t)
+}
+.chip:hover{background:#0d1420}
+.chip.is-active{background:var(--primary); border-color:transparent; color:#fff}
+
+/* Piccolo numero accanto a “Chiama” */
+.chip-number{
+  margin-left:8px; padding:2px 8px; border-radius:999px; border:1px solid var(--border);
+  background:#0d1420; font-size:12px; color:var(--muted);
+}
+
+/* Segmented (ruoli call) */
+.segmented{display:flex; gap:8px; flex-wrap:wrap}
+.segmented .chip{height:30px;}
+
+/* ====== INPUTS ====== */
+textarea,input,select{
+  width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--border);
+  background:#0d1420; color:var(--text); outline:none; transition:border var(--t)
+}
+textarea:focus,input:focus,select:focus{border-color:#2a3550}
+input:disabled, textarea:disabled, button:disabled{opacity:.6}
+
 /* ====== KPI BAR ====== */
 .kpi-bar{
   position:sticky; top:68px; z-index:40;
@@ -146,13 +180,6 @@ small,.small{font-size:var(--cap)}
 }
 .input-icon input:focus{border-color:#2a3550}
 .filters{display:flex; gap:8px}
-.chip{
-  display:inline-flex; align-items:center; gap:8px; height:32px; padding:0 12px;
-  border-radius:999px; border:1px solid var(--border); background:transparent; color:var(--text);
-  cursor:pointer; transition:all var(--t)
-}
-.chip:hover{background:#0d1420}
-.spacer{flex:1}
 
 /* ====== TODAY LIST ====== */
 .list{display:flex; flex-direction:column; gap:10px}
@@ -215,18 +242,23 @@ small,.small{font-size:var(--cap)}
 .timeline{display:flex; flex-direction:column; gap:6px}
 .tl-row{font-size:13px; color:#d7deea}
 
-textarea,input,select{
-  width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--border);
-  background:#0d1420; color:var(--text); outline:none; transition:border var(--t)
-}
-textarea:focus,input:focus,select:focus{border-color:#2a3550}
-
-.actions-end{display:flex; justify-content:flex-end; gap:8px; margin-top:var(--s3)}
-.actions-start{display:flex; justify-content:flex-start; gap:8px; margin-top:var(--s3)}
-
 .preview .label{color:var(--muted); font-size:12px; margin-bottom:6px}
 .preview-grid{display:grid; grid-template-columns:1fr 1fr; gap:var(--s4)}
 .mini-actions{display:flex; gap:8px; margin-top:8px}
+
+/* Action Dock (colonna destra) */
+.action-dock{display:grid; grid-template-columns:repeat(5, 1fr); gap:10px}
+@media (max-width: 1279px){
+  .action-dock{grid-template-columns:repeat(3, 1fr)}
+}
+@media (max-width: 767px){
+  .lead-right .action-dock{
+    position:sticky; bottom:0; z-index:30;
+    background:linear-gradient(0deg, rgba(11,15,20,0.96), rgba(11,15,20,0.96)), var(--bg);
+    border-top:1px solid var(--border); padding:var(--s3); box-shadow:0 -6px 20px rgba(0,0,0,.25)
+  }
+  .btn.xl{font-size:14px}
+}
 
 /* ====== PIPELINE (KANBAN) ====== */
 .kanban{display:grid; grid-template-columns: repeat(4, 1fr); gap:var(--s4)}
@@ -293,6 +325,12 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
 }
 .slot-cta:hover{background:#0f1b2e}
 
+/* Modal Chiama: timer & esiti */
+.call-quick{display:flex; align-items:center; justify-content:space-between; gap:12px; margin:var(--s3) 0}
+.timer{display:flex; align-items:center; gap:8px; padding:6px 10px; border:1px solid var(--border); border-radius:10px; background:#0d1420}
+#call-timer{font-variant-numeric:tabular-nums; font-weight:600}
+.outcomes{display:flex; gap:8px; flex-wrap:wrap}
+
 /* ====== TOASTS ====== */
 .toasts{
   position:fixed; top:12px; right:12px; display:flex; flex-direction:column; gap:8px; z-index:100;
@@ -313,7 +351,6 @@ dialog::backdrop{background:rgba(0,0,0,.5)}
   outline-offset: 2px;
   border-radius: 6px;
 }
-input:disabled, textarea:disabled, button:disabled{opacity:.6}
 
 /* ====== RESPONSIVE ====== */
 @media (max-width: 1279px){
@@ -338,18 +375,62 @@ input:disabled, textarea:disabled, button:disabled{opacity:.6}
 
   .kanban{grid-template-columns:1fr}
   .template-grid, .cases-grid{grid-template-columns:1fr}
-
-  /* Action Dock sticky in basso */
-  .lead-right .action-dock{
-    position:sticky; bottom:0; z-index:30; background:linear-gradient(0deg, rgba(11,15,20,0.96), rgba(11,15,20,0.96)), var(--bg);
-    border-top:1px solid var(--border); padding:var(--s3); box-shadow:0 -6px 20px rgba(0,0,0,.25)
-  }
-  .btn.xl{font-size:14px}
 }
 
-/* ====== MISC ====== */
-.label{color:var(--muted); font-size:12px}
-hr{border:0; border-top:1px solid var(--border); margin:var(--s4) 0}
+/* =========================
+   LIGHT THEME (non-dark)
+   Attiva con: <html data-theme="light">
+   ========================= */
+html[data-theme="light"]{ color-scheme: light; }
 
-/* ====== ACCESSIBILITÀ COLORE ====== */
-.btn.primary, .slot-cta{color:#fff}
+/* Token override */
+html[data-theme="light"]{
+  --bg: #F7F9FC;
+  --card: #FFFFFF;
+  --border: #E5EAF0;
+  --text: #0B1220;
+  --muted: #5B6B7F;
+  --muted-2: #8A97A9;
+
+  --primary: #3B82F6;
+  --info: #2563EB;
+  --warn: #D97706;
+  --danger: #DC2626;
+  --success: #059669;
+
+  --heat-cold: #0EA5E9;
+  --heat-warm: #EAB308;
+  --heat-hot:  #16A34A;
+}
+
+/* Component override (per classi con colori “hardcoded” scuri) */
+html[data-theme="light"] .app-header{
+  background: linear-gradient(0deg, rgba(247,249,252,.9), rgba(247,249,252,.9)), var(--bg);
+}
+html[data-theme="light"] .kpi-bar{
+  background: linear-gradient(0deg, rgba(247,249,252,.9), rgba(247,249,252,.9)), var(--bg);
+}
+html[data-theme="light"] .tab:hover{ background:#F1F5FB; }
+html[data-theme="light"] .icon-btn:hover{ background:#F1F5FB; }
+html[data-theme="light"] .heat{ background:#F1F5FB; }
+
+html[data-theme="light"] textarea,
+html[data-theme="light"] input,
+html[data-theme="light"] select{ background:#FFFFFF; }
+
+html[data-theme="light"] .col-list{ border-color:#E5EAF0; }
+html[data-theme="light"] .slot-cta{ background:#F8FAFF; }
+html[data-theme="light"] .slot-cta:hover{ background:#EEF4FF; }
+
+/* Toast in chiaro */
+html[data-theme="light"] .toast.info{ border-color:#BFDBFE; background:#EFF6FF; color:#1E3A8A; }
+html[data-theme="light"] .toast.success{ border-color:#BBF7D0; background:#ECFDF5; color:#065F46; }
+html[data-theme="light"] .toast.danger{ border-color:#FECACA; background:#FEF2F2; color:#7F1D1D; }
+
+/* Focus strip in chiaro */
+html[data-theme="light"] .focus-strip{
+  background: linear-gradient(0deg, rgba(255,255,255,.95), rgba(255,255,255,.95)), var(--card);
+}
+html[data-theme="light"] .lead-right .action-dock{
+  background: linear-gradient(0deg, rgba(255,255,255,.96), rgba(255,255,255,.96)), var(--bg);
+}
