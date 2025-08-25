@@ -3,384 +3,617 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>QPWONCall — Sales Copilot</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <title>QPWONCall v2 — Lead to Appointment</title>
+  <meta name="description" content="QPWONCall v2: mini-CRM da trattativa per fissare appuntamenti in 1–2 click. Focus Strip, Action Dock, Pipeline Kanban, Libreria Template + Casi studio."/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-  <!-- ICON SET -->
-  <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
-    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 9.5 12 3l9 6.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V9.5z"/></symbol>
-    <symbol id="i-user" viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-5 0-9 2.5-9 5.5A1.5 1.5 0 0 0 4.5 21h15A1.5 1.5 0 0 0 21 19.5C21 16.5 17 14 12 14Z"/></symbol>
-    <symbol id="i-book" viewBox="0 0 24 24"><path d="M6 3h12a2 2 0 0 1 2 2v16H8a2 2 0 0 1-2-2V3zM4 3h1v16H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/></symbol>
-    <symbol id="i-kanban" viewBox="0 0 24 24"><path d="M3 4h18v16H3zM6 7h3v10H6zM11 7h3v6h-3zM16 7h3v3h-3z"/></symbol>
-    <symbol id="i-gear" viewBox="0 0 24 24"><path d="M12 15a3 3 0 1 0-3-3 3 3 0 0 0 3 3Zm7.4-3a7.4 7.4 0 0 0-.1-1l2-1.6-2-3.5-2.4 1a7.4 7.4 0 0 0-1.7-1l-.3-2.6H9l-.3 2.6a7.4 7.4 0 0 0-1.7 1l-2.4-1-2 3.5 2 1.6a7.4 7.4 0 0 0 0 2l-2 1.6 2 3.5 2.4 1 2.4-1a7.4 7.4 0 0 0 1.7 1l.3 2.6h6l.3-2.6a7.4 7.4 0 0 0 1.7-1l2.4 1 2-3.5-2-1.6a7.4 7.4 0 0 0 .1-1Z"/></symbol>
-    <symbol id="i-target" viewBox="0 0 24 24"><path d="M12 22A10 10 0 1 0 2 12a10 10 0 0 0 10 10Zm0-6a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z"/></symbol>
-    <symbol id="i-calendar" viewBox="0 0 24 24"><path d="M7 2v3M17 2v3M3 8h18M5 5h14a2 2 0 0 1 2 2v12a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a2 2 0 0 1 2-2"/></symbol>
-    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M15 18H5a2 2 0 0 1-2-2v-3a7 7 0 0 1 14 0v3a2 2 0 0 1-2 2Zm-6 3a2 2 0 0 0 4 0"/></symbol>
-    <symbol id="i-mail" viewBox="0 0 24 24"><path d="M3 6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Zm0 0 9 7 9-7"/></symbol>
-    <symbol id="i-wa" viewBox="0 0 24 24"><path d="M20.5 3.5A11 11 0 0 0 3.4 20.6L2 22l1.7-.4A11 11 0 1 0 20.5 3.5ZM7 8.7c0 4 3.3 7.3 7.3 7.3.8 0 1.6-.1 2.3-.4.3-.1.7 0 .9.2l.6.6a.6.6 0 0 1 0 .9 8.8 8.8 0 0 1-4.7 1.4C9.2 19.7 5 15.6 5 10.7 5 8.9 5.5 7.3 6.3 6c.2-.3.6-.3.9 0l.6.6c.2.2.3.5.2.8-.1.6-.2 1.3-.2 1.3Z"/></symbol>
-    <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 2 3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></symbol>
-    <symbol id="i-tag" viewBox="0 0 24 24"><path d="M2 12 12 2h6l4 4-10 10H2zM16 6a2 2 0 1 0 2 2 2 2 0 0 0-2-2z"/></symbol>
+  <!-- ====== Sprite icone inline (24x24, stroke 1.75, currentColor) ====== -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none" stroke="currentColor" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <symbol id="qpwon-dashboard" viewBox="0 0 24 24">
+      <rect x="3" y="10" width="4" height="10" rx="1"/><rect x="10" y="6" width="4" height="14" rx="1"/><rect x="17" y="2" width="4" height="18" rx="1"/>
+    </symbol>
+    <symbol id="qpwon-today" viewBox="0 0 24 24">
+      <rect x="3" y="4" width="18" height="17" rx="2"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="12" cy="15" r="1.75"/>
+    </symbol>
+    <symbol id="qpwon-one-lead" viewBox="0 0 24 24">
+      <circle cx="12" cy="8" r="3"/><path d="M5 20c1.5-3 5-5 7-5s5.5 2 7 5"/>
+    </symbol>
+    <symbol id="qpwon-library" viewBox="0 0 24 24">
+      <path d="M3 7h6a4 4 0 0 1 4 4v10H7a4 4 0 0 0-4-4z"/><path d="M21 7h-6a4 4 0 0 0-4 4v10h6a4 4 0 0 1 4-4z"/>
+    </symbol>
+    <symbol id="qpwon-pipeline" viewBox="0 0 24 24">
+      <rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="16" rx="1"/><rect x="17" y="4" width="4" height="16" rx="1"/>
+    </symbol>
+    <symbol id="qpwon-settings" viewBox="0 0 24 24">
+      <line x1="4" y1="6" x2="20" y2="6"/><circle cx="10" cy="6" r="2"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="14" cy="12" r="2"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="7" cy="18" r="2"/>
+    </symbol>
+    <symbol id="qpwon-plus" viewBox="0 0 24 24">
+      <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+    </symbol>
+    <symbol id="qpwon-import" viewBox="0 0 24 24">
+      <path d="M12 3v10"/><polyline points="8,9 12,13 16,9"/><rect x="4" y="15" width="16" height="5" rx="2"/>
+    </symbol>
+    <symbol id="qpwon-export" viewBox="0 0 24 24">
+      <path d="M12 21V11"/><polyline points="8,15 12,11 16,15"/><rect x="4" y="4" width="16" height="5" rx="2"/>
+    </symbol>
+    <symbol id="qpwon-save" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9"/><polyline points="8,12 11,15 16,9"/>
+    </symbol>
+    <symbol id="qpwon-external-link" viewBox="0 0 24 24">
+      <path d="M14 3h7v7"/><path d="M21 3l-9 9"/><rect x="3" y="10" width="8" height="11" rx="2"/>
+    </symbol>
+    <symbol id="qpwon-email" viewBox="0 0 24 24">
+      <rect x="3" y="5" width="18" height="14" rx="2"/><polyline points="3,7 12,13 21,7"/>
+    </symbol>
+    <symbol id="qpwon-chat" viewBox="0 0 24 24">
+      <rect x="3" y="5" width="18" height="12" rx="3"/><path d="M8 17l-1 4 4-3"/>
+    </symbol>
+    <symbol id="qpwon-phone" viewBox="0 0 24 24">
+      <path d="M4 5l4-2 4 4-2 2c2 3 5 5 8 7l2-2 4 4-2 4c-6-2-12-8-14-13z"/>
+    </symbol>
+    <symbol id="qpwon-calendar" viewBox="0 0 24 24">
+      <rect x="3" y="4" width="18" height="17" rx="2"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+    </symbol>
+    <symbol id="qpwon-calendar-plus" viewBox="0 0 24 24">
+      <rect x="3" y="4" width="18" height="17" rx="2"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="13" x2="12" y2="18"/><line x1="9.5" y1="15.5" x2="14.5" y2="15.5"/>
+    </symbol>
+    <symbol id="qpwon-bell" viewBox="0 0 24 24">
+      <path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 8H4c0-2 2-3 2-8"/><circle cx="12" cy="19" r="1.5"/>
+    </symbol>
+    <symbol id="qpwon-copy" viewBox="0 0 24 24">
+      <rect x="9" y="9" width="10" height="12" rx="2"/><rect x="5" y="5" width="10" height="12" rx="2"/>
+    </symbol>
+    <symbol id="qpwon-edit" viewBox="0 0 24 24">
+      <path d="M3 17v4h4l11-11-4-4-11 11z"/><path d="M14 6l4 4"/>
+    </symbol>
+    <symbol id="qpwon-trash" viewBox="0 0 24 24">
+      <path d="M3 6h18"/><path d="M8 6V4h8v2"/><rect x="6" y="6" width="12" height="14" rx="2"/><line x1="10" y1="10" x2="10" y2="18"/><line x1="14" y1="10" x2="14" y2="18"/>
+    </symbol>
+    <symbol id="qpwon-archive" viewBox="0 0 24 24">
+      <rect x="3" y="4" width="18" height="5" rx="2"/><rect x="4" y="9" width="16" height="11" rx="2"/><line x1="10" y1="13" x2="14" y2="13"/>
+    </symbol>
+    <symbol id="qpwon-reopen" viewBox="0 0 24 24">
+      <path d="M3 12a9 9 0 1 0 3-6"/><polyline points="3,4 3,10 9,10"/>
+    </symbol>
+    <symbol id="qpwon-filter" viewBox="0 0 24 24">
+      <polyline points="3,5 21,5 14,12 14,19 10,21 10,12 3,5"/>
+    </symbol>
+    <symbol id="qpwon-search" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="7"/><line x1="16.65" y1="16.65" x2="21" y2="21"/>
+    </symbol>
+    <symbol id="qpwon-tag" viewBox="0 0 24 24">
+      <path d="M3 11V6a3 3 0 0 1 3-3h5l10 10-8 8L3 11z"/><circle cx="8" cy="8" r="1.5"/>
+    </symbol>
+    <symbol id="qpwon-trend-up" viewBox="0 0 24 24">
+      <polyline points="3,17 9,11 13,15 21,7"/><polyline points="17,7 21,7 21,11"/>
+    </symbol>
+    <symbol id="qpwon-coins" viewBox="0 0 24 24">
+      <ellipse cx="12" cy="8" rx="6" ry="3"/><path d="M6 8v5c0 1.7 2.7 3 6 3s6-1.3 6-3V8"/><ellipse cx="12" cy="13" rx="6" ry="3"/>
+    </symbol>
+    <symbol id="qpwon-template" viewBox="0 0 24 24">
+      <rect x="7" y="7" width="10" height="10" rx="2"/><rect x="3" y="3" width="10" height="10" rx="2"/>
+    </symbol>
+    <symbol id="qpwon-case-study" viewBox="0 0 24 24">
+      <path d="M7 3h8l4 4v14H7z"/><path d="M15 3v5h5"/><path d="M11 10l1 2h2l-1.5 1.1L13 16l-2-1-2 1 .5-2.9L8 12h2z"/>
+    </symbol>
+    <symbol id="qpwon-info" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9"/><line x1="12" y1="10" x2="12" y2="16"/><circle cx="12" cy="7" r="1"/>
+    </symbol>
+    <symbol id="qpwon-check-circle" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9"/><polyline points="7.5,12 11,15 16.5,9"/>
+    </symbol>
+    <symbol id="qpwon-alert-triangle" viewBox="0 0 24 24">
+      <path d="M12 3l10 18H2L12 3z"/><line x1="12" y1="10" x2="12" y2="14"/><circle cx="12" cy="18" r="1"/>
+    </symbol>
+    <symbol id="qpwon-x-circle" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/>
+    </symbol>
   </svg>
 
+  <!-- ====== Header & Tabs ====== -->
   <header class="app-header">
-    <div class="topbar">
-      <div class="brand">
-        <span class="logo">QPWON<span>Call</span></span>
-        <nav class="nav">
-          <button class="tab active" data-view="today"><svg class="ico"><use href="#i-home"/></svg> Oggi</button>
-          <button class="tab" data-view="one"><svg class="ico"><use href="#i-user"/></svg> One-Lead</button>
-          <button class="tab" data-view="library"><svg class="ico"><use href="#i-book"/></svg> Libreria</button>
-          <button class="tab" data-view="pipeline"><svg class="ico"><use href="#i-kanban"/></svg> Pipeline</button>
-          <button class="tab" data-view="settings"><svg class="ico"><use href="#i-gear"/></svg> Impostazioni</button>
-        </nav>
-      </div>
-      <div class="controls">
-        <div class="quota">
-          <div class="quota-top"><svg class="ico"><use href="#i-target"/></svg> Target</div>
-          <div class="bar-bg"><div id="quotaFill" class="bar-fill"></div></div>
-          <div class="quota-bottom"><b id="quotaVal">0</b>€ / <b id="quotaTar">0</b>€ <span id="quotaPerc">(0%)</span></div>
-        </div>
-        <div class="kpis">
-          <div class="kpi"><span>Leads</span><b id="kTot">0</b></div>
-          <div class="kpi"><span>Caldi</span><b id="kHot">0</b></div>
-          <div class="kpi"><span>App Oggi</span><b id="kApp">0</b></div>
-          <div class="kpi"><span>Recall Oggi</span><b id="kRecall">0</b></div>
-          <div class="kpi value"><span>Pipeline</span><b id="kPipe">0</b>€</div>
-        </div>
-        <div class="clock" id="clock"></div>
-      </div>
+    <div class="brand">
+      <svg class="icon"><use href="#qpwon-dashboard"></use></svg>
+      <strong>QPWONCall <span class="muted">v2</span></strong>
     </div>
+    <nav class="tabs" role="tablist" aria-label="Sezioni principali">
+      <button class="tab is-active" role="tab" aria-selected="true" data-tab="oggi">
+        <svg class="icon"><use href="#qpwon-today"></use></svg> Oggi
+      </button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="one-lead">
+        <svg class="icon"><use href="#qpwon-one-lead"></use></svg> One-Lead
+      </button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="libreria">
+        <svg class="icon"><use href="#qpwon-library"></use></svg> Libreria
+      </button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="pipeline">
+        <svg class="icon"><use href="#qpwon-pipeline"></use></svg> Pipeline
+      </button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="impostazioni">
+        <svg class="icon"><use href="#qpwon-settings"></use></svg> Impostazioni
+      </button>
+    </nav>
+
     <div class="toolbar">
-      <button id="btnNewLead" class="btn primary">+ Nuovo lead</button>
-      <input type="file" id="fileImport" accept=".csv" hidden/>
-      <button id="btnImport" class="btn">Import CSV</button>
-      <button id="btnExport" class="btn">Export CSV</button>
-      <button id="btnClear" class="btn danger">Svuota dati</button>
+      <button class="btn ghost" id="btn-import" title="Importa CSV">
+        <svg class="icon"><use href="#qpwon-import"></use></svg>
+        <span class="hide-mobile">Importa</span>
+      </button>
+      <button class="btn ghost" id="btn-export" title="Esporta CSV">
+        <svg class="icon"><use href="#qpwon-export"></use></svg>
+        <span class="hide-mobile">Esporta</span>
+      </button>
+      <button class="btn primary" id="btn-new-lead">
+        <svg class="icon"><use href="#qpwon-plus"></use></svg>
+        Nuovo lead
+      </button>
     </div>
+    <input type="file" id="file-import" accept=".csv" hidden />
   </header>
 
+  <!-- ====== KPI Bar ====== -->
+  <section class="kpi-bar">
+    <div class="kpi">
+      <div class="kpi-value" id="kpi-total">0</div>
+      <div class="kpi-label">Lead totali</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-value" id="kpi-hot">0</div>
+      <div class="kpi-label">Caldi</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-value" id="kpi-recall">0</div>
+      <div class="kpi-label">Recall oggi</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-value" id="kpi-meetings">0</div>
+      <div class="kpi-label">App fissati</div>
+    </div>
+    <div class="quota">
+      <div class="quota-top">
+        <span>Quota</span>
+        <span id="quota-amount" class="muted">€ 0 / € 0</span>
+      </div>
+      <div class="progress">
+        <div class="progress-bar" id="quota-progress" style="width:0%"></div>
+      </div>
+    </div>
+  </section>
+
   <main class="views">
+    <!-- ====== VIEW: OGGI ====== -->
+    <section id="view-oggi" class="view is-active" aria-labelledby="tab-oggi">
+      <div class="filter-bar">
+        <div class="input-icon">
+          <svg class="icon"><use href="#qpwon-search"></use></svg>
+          <input id="search-today" type="search" placeholder="Cerca per nome, città, tag…" autocomplete="off"/>
+        </div>
+        <div class="filters">
+          <button class="chip" data-filter="stato">Stato</button>
+          <button class="chip" data-filter="calore">Calore</button>
+          <button class="chip" data-filter="recall">Recall</button>
+          <button class="chip" data-filter="tag">Tag</button>
+        </div>
+        <div class="spacer"></div>
+        <button class="btn danger ghost" id="btn-clear-data" title="Svuota dati">
+          <svg class="icon"><use href="#qpwon-trash"></use></svg>
+          <span class="hide-mobile">Svuota</span>
+        </button>
+      </div>
 
-    <!-- TODAY -->
-    <section id="view-today" class="view active">
-      <div class="cards">
-        <div class="card">
-          <h3><svg class="ico"><use href="#i-bell"/></svg> Da fare ora</h3>
-          <ul id="todoNow" class="list"></ul>
-        </div>
-        <div class="card">
-          <h3><svg class="ico"><use href="#i-star"/></svg> Priorità</h3>
-          <ul id="prioList" class="list"></ul>
-        </div>
+      <div id="today-list" class="list">
+        <!-- Righe generate da JS. Esempio placeholder: -->
+        <!--
+        <article class="row" data-id="LEAD_ID">
+          <span class="heat heat-hot"><span class="dot"></span> Caldo</span>
+          <div class="lead-main">
+            <h3 class="lead-title">Proxima — Bologna</h3>
+            <div class="meta">€ 2.400/m • nuovo • recall oggi</div>
+          </div>
+          <div class="row-actions">
+            <button class="icon-btn" data-action="open"><svg class="icon"><use href="#qpwon-one-lead"></use></svg></button>
+            <button class="icon-btn" data-action="quick-actions" title="Azioni (A)"><svg class="icon"><use href="#qpwon-template"></use></svg></button>
+            <button class="icon-btn" data-action="recall"><svg class="icon"><use href="#qpwon-bell"></use></svg></button>
+            <button class="icon-btn" data-action="email"><svg class="icon"><use href="#qpwon-email"></use></svg></button>
+            <button class="icon-btn" data-action="whatsapp"><svg class="icon"><use href="#qpwon-chat"></use></svg></button>
+          </div>
+        </article>
+        -->
       </div>
     </section>
 
-    <!-- ONE-LEAD -->
-    <section id="view-one" class="view">
-      <div id="onePanel" class="one-panel"></div>
-      <div class="one-nav">
-        <button id="prevLead" class="btn">← Precedente</button>
-        <button id="nextLead" class="btn">Successivo →</button>
+    <!-- ====== VIEW: ONE-LEAD ====== -->
+    <section id="view-one-lead" class="view" aria-labelledby="tab-one-lead">
+      <!-- Focus Strip -->
+      <div class="focus-strip" role="region" aria-label="Focus azione su lead">
+        <div class="focus-diagnosi">
+          <svg class="icon"><use href="#qpwon-info"></use></svg>
+          <span id="focus-diagnosi-text">Seleziona un lead dalla coda Oggi…</span>
+        </div>
+        <button class="btn primary" id="btn-nba">
+          <svg class="icon"><use href="#qpwon-calendar-plus"></use></svg>
+          <span id="focus-nba-label">Proponi 2 slot</span>
+        </button>
+        <div class="focus-slots">
+          <button class="slot-pill" id="slot-1" disabled>—</button>
+          <button class="slot-pill" id="slot-2" disabled>—</button>
+        </div>
       </div>
-    </section>
 
-    <!-- LIBRARY -->
-    <section id="view-library" class="view">
-      <div class="cards">
-        <div class="card">
-          <h3><svg class="ico"><use href="#i-book"/></svg> Casi pratici</h3>
-          <div id="caseList" class="list"></div>
-        </div>
-        <div class="card">
-          <h3><svg class="ico"><use href="#i-mail"/></svg> Template</h3>
-          <div id="tplList" class="list"></div>
-        </div>
-      </div>
-    </section>
+      <div class="onelead-grid">
+        <!-- Colonna sinistra -->
+        <aside class="lead-left">
+          <div class="card">
+            <header class="card-head">
+              <div class="title-row">
+                <h2 id="lead-name">Nessun lead</h2>
+                <span id="lead-heat" class="heat"><span class="dot"></span> —</span>
+              </div>
+              <div class="subtitle" id="lead-city">—</div>
+            </header>
+            <dl class="lead-info">
+              <div><dt>Referente</dt><dd id="lead-referente">—</dd></div>
+              <div><dt>Telefono</dt><dd id="lead-phone">—</dd></div>
+              <div><dt>Email</dt><dd id="lead-email">—</dd></div>
+              <div><dt>Prodotto</dt><dd id="lead-product">—</dd></div>
+              <div><dt>Valore stimato</dt><dd id="lead-value">—</dd></div>
+              <div><dt>Tag</dt><dd id="lead-tags">—</dd></div>
+            </dl>
+          </div>
 
-    <!-- PIPELINE -->
-    <section id="view-pipeline" class="view">
-      <div class="filters">
-        <input id="search" placeholder="Cerca struttura / città / tel..." />
-        <select id="fState">
-          <option value="">Stato: tutti</option>
-          <option value="da_lavorare">Da lavorare</option>
-          <option value="in_lavorazione">In lavorazione</option>
-          <option value="app_fissato">App fissato</option>
-          <option value="chiuso">Chiuso</option>
-        </select>
-        <select id="fHeat">
-          <option value="">Calore: tutti</option>
-          <option value="caldo">Caldo</option>
-          <option value="tiepido">Tiepido</option>
-          <option value="freddo">Freddo</option>
-        </select>
-        <select id="fRecall">
-          <option value="">Recall: tutti</option>
-          <option value="oggi">Oggi</option>
-          <option value="settimana">Settimana</option>
-          <option value="no">Senza recall</option>
-        </select>
-        <input id="fTags" placeholder="Filtra tag (virgole)" />
-      </div>
-      <div class="kanban">
-        <div class="kan-col">
-          <h2>Da lavorare <span class="kan-count" id="cntTodo">0</span></h2>
-          <ul id="listTodo" class="lead-list"></ul>
-        </div>
-        <div class="kan-col">
-          <h2>In lavorazione <span class="kan-count" id="cntDoing">0</span></h2>
-          <ul id="listDoing" class="lead-list"></ul>
-        </div>
-        <div class="kan-col">
-          <h2>App fissato <span class="kan-count" id="cntBooked">0</span></h2>
-          <ul id="listBooked" class="lead-list"></ul>
-        </div>
-        <div class="kan-col">
-          <h2>Archiviati <span class="kan-count" id="cntClosed">0</span></h2>
-          <ul id="listClosed" class="lead-list"></ul>
-        </div>
-      </div>
-    </section>
+          <div class="card">
+            <h3 class="card-title"><svg class="icon"><use href="#qpwon-trend-up"></use></svg> Diagnosi & motivazione</h3>
+            <p id="lead-diagnosi">—</p>
+            <p class="muted" id="lead-reason">—</p>
+          </div>
 
-    <!-- SETTINGS -->
-    <section id="view-settings" class="view">
-      <div class="settings-grid">
-        <div class="card">
-          <h3>Obiettivi</h3>
-          <label>Target mensile (€) <input id="sTarget" type="number" min="0" step="100"/></label>
-        </div>
-        <div class="card">
-          <h3>Valori business</h3>
-          <label>Valore medio appuntamento (€) <input id="sValAppt" type="number" min="0" step="10"/></label>
-          <label>Giorni lavorativi/mese <input id="sWorkDays" type="number" min="1" max="31"/></label>
-          <label>Conversione chiamate → app (%) <input id="sConv" type="number" min="0" max="100"/></label>
-        </div>
-        <div class="card">
-          <h3>Valore default per prodotto</h3>
-          <label>GipoNext <input id="sValGipo" type="number" min="0" step="50"/></label>
-          <label>CRM MioDottore <input id="sValCRM" type="number" min="0" step="50"/></label>
-          <label>Visibilità MioDottore <input id="sValVis" type="number" min="0" step="50"/></label>
-        </div>
-        <div class="card">
-          <h3>Scoring “Calore”</h3>
-          <label>problema chiamate <input id="wProbCall" type="number" min="0" max="6"/></label>
-          <label>overbooking <input id="wOver" type="number" min="0" max="6"/></label>
-          <label>priorità riduzione <input id="wPrior" type="number" min="0" max="6"/></label>
-          <label>interesse visibilità <input id="wVis" type="number" min="0" max="6"/></label>
-          <label>prontezza <input id="wReady" type="number" min="0" max="6"/></label>
-          <label>bonus costo≥soglia <input id="wCosto" type="number" min="0" max="6"/></label>
-          <label>Soglia costo (€/mese) <input id="wSoglia" type="number" min="0" step="50"/></label>
-        </div>
-        <div class="card">
-          <h3>Template & Firma</h3>
-          <label>Firma <input id="sFirma" placeholder="Cordiali saluti, Nome Cognome"/></label>
-          <details>
-            <summary>Email/WA — personalizza</summary>
-            <div class="tpl-grid">
+          <div class="card">
+            <h3 class="card-title"><svg class="icon"><use href="#qpwon-bell"></use></svg> Timeline</h3>
+            <div id="lead-timeline" class="timeline"></div>
+          </div>
+
+          <div class="card">
+            <h3 class="card-title"><svg class="icon"><use href="#qpwon-edit"></use></svg> Note</h3>
+            <textarea id="lead-notes" rows="5" placeholder="Annota ciò che serve per la prossima azione…"></textarea>
+            <div class="actions-end">
+              <button class="btn ghost" id="btn-save-notes"><svg class="icon"><use href="#qpwon-save"></use></svg> Salva note</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 class="card-title"><svg class="icon"><use href="#qpwon-phone"></use></svg> Script di chiamata</h3>
+            <p id="call-script" class="mono small">—</p>
+          </div>
+        </aside>
+
+        <!-- Colonna destra: Action Dock -->
+        <section class="lead-right">
+          <div class="action-dock">
+            <button class="btn xl" id="btn-proponi">
+              <svg class="icon"><use href="#qpwon-calendar-plus"></use></svg> Proponi/Appunta
+            </button>
+            <button class="btn xl" id="btn-email">
+              <svg class="icon"><use href="#qpwon-email"></use></svg> Email
+            </button>
+            <button class="btn xl" id="btn-whatsapp">
+              <svg class="icon"><use href="#qpwon-chat"></use></svg> WhatsApp
+            </button>
+            <button class="btn xl" id="btn-recall">
+              <svg class="icon"><use href="#qpwon-bell"></use></svg> Recall
+            </button>
+          </div>
+
+          <div class="preview card">
+            <h3 class="card-title"><svg class="icon"><use href="#qpwon-template"></use></svg> Anteprima testi</h3>
+            <div class="preview-grid">
               <div>
-                <h4>Freddo</h4>
-                <label>Oggetto <input id="tFreSub"/></label>
-                <label>Corpo <textarea id="tFreBody" rows="5"></textarea></label>
-                <label>WhatsApp <textarea id="tFreWA" rows="3"></textarea></label>
+                <label for="preview-email-subj" class="label">Oggetto (Email)</label>
+                <input id="preview-email-subj" type="text" placeholder="Oggetto email…" />
+                <label for="preview-email-body" class="label">Corpo (Email)</label>
+                <textarea id="preview-email-body" rows="8" placeholder="Testo email…"></textarea>
               </div>
               <div>
-                <h4>Tiepido</h4>
-                <label>Oggetto <input id="tTieSub"/></label>
-                <label>Corpo <textarea id="tTieBody" rows="5"></textarea></label>
-                <label>WhatsApp <textarea id="tTieWA" rows="3"></textarea></label>
-              </div>
-              <div>
-                <h4>Caldo</h4>
-                <label>Oggetto <input id="tCalSub"/></label>
-                <label>Corpo <textarea id="tCalBody" rows="5"></textarea></label>
-                <label>WhatsApp <textarea id="tCalWA" rows="3"></textarea></label>
+                <label for="preview-wa" class="label">Messaggio (WhatsApp)</label>
+                <textarea id="preview-wa" rows="12" placeholder="Testo WhatsApp…"></textarea>
+                <div class="mini-actions">
+                  <button class="btn ghost" id="btn-wa-clean"><svg class="icon"><use href="#qpwon-filter"></use></svg> Pulisci/accorcia</button>
+                  <button class="btn ghost" id="btn-wa-insert-case"><svg class="icon"><use href="#qpwon-case-study"></use></svg> Inserisci case</button>
+                </div>
               </div>
             </div>
-          </details>
+            <div class="actions-end">
+              <button class="btn ghost" id="btn-copy-email"><svg class="icon"><use href="#qpwon-copy"></use></svg> Copia email</button>
+              <button class="btn ghost" id="btn-copy-wa"><svg class="icon"><use href="#qpwon-copy"></use></svg> Copia WhatsApp</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 class="card-title"><svg class="icon"><use href="#qpwon-case-study"></use></svg> Case study consigliati</h3>
+            <ul class="cases-suggest" id="suggested-cases">
+              <!-- Links generati da JS: Proxima / RMS / Check Up -->
+            </ul>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- ====== VIEW: PIPELINE ====== -->
+    <section id="view-pipeline" class="view" aria-labelledby="tab-pipeline">
+      <div class="kanban">
+        <div class="col" data-col="todo">
+          <header>Da lavorare</header>
+          <div class="col-list" id="col-todo"></div>
         </div>
-        <div class="card">
-          <h3>WhatsApp</h3>
-          <p>Collega/usa WhatsApp Web/Desktop per inviare messaggi dai lead. Puoi testare il collegamento qui.</p>
-          <button id="btnWAConnect" class="btn">Collegamento / Test WhatsApp</button>
+        <div class="col" data-col="doing">
+          <header>In lavorazione</header>
+          <div class="col-list" id="col-doing"></div>
         </div>
-        <div class="card">
-          <h3>Salva</h3>
-          <button id="saveSettings" class="btn primary">Salva impostazioni</button>
+        <div class="col" data-col="booked">
+          <header>App fissato</header>
+          <div class="col-list" id="col-booked"></div>
+        </div>
+        <div class="col" data-col="closed">
+          <header>Chiuso</header>
+          <div class="col-list" id="col-closed"></div>
         </div>
       </div>
     </section>
 
+    <!-- ====== VIEW: LIBRERIA ====== -->
+    <section id="view-libreria" class="view" aria-labelledby="tab-libreria">
+      <div class="library">
+        <section class="lib-block">
+          <header class="lib-head">
+            <h2><svg class="icon"><use href="#qpwon-template"></use></svg> Template pronti</h2>
+            <p class="muted small">Freddo • Tiepido • Caldo • Oggetto/Email • WhatsApp</p>
+          </header>
+          <div class="template-grid" id="template-list">
+            <!-- Card template generate da JS -->
+          </div>
+        </section>
+
+        <section class="lib-block">
+          <header class="lib-head">
+            <h2><svg class="icon"><use href="#qpwon-case-study"></use></svg> Casi studio</h2>
+            <p class="muted small">Materiale di supporto (non sono lead). Copia/Inserisci nei messaggi.</p>
+          </header>
+
+          <div class="cases-grid" id="cases-list">
+            <!-- Ogni case ha: titolo, 5 righe (problema/soluzione/risultati/one-liner/CTA) + pulsanti -->
+            <!-- Placeholder di struttura per 3 case: Proxima, RMS, Check Up -->
+            <article class="case-card" data-case="proxima">
+              <header><strong>Proxima</strong> • Integrazione & h24</header>
+              <ul>
+                <li><strong>Problema:</strong> strumenti non integrati, visibilità fuori orario.</li>
+                <li><strong>Soluzione:</strong> GipoNext + MioDottore (agenda, messaggistica, promemoria).</li>
+                <li><strong>Risultati:</strong> ~4.500 pren/anno, ~35% fuori orario, >400 recensioni.</li>
+                <li><strong>One-liner:</strong> “Colleghi clinico-gestionale e apri prenotazioni anche quando siete chiusi.”</li>
+                <li><strong>CTA:</strong> “Ti va un confronto di 15’?”</li>
+              </ul>
+              <div class="case-actions">
+                <button class="btn ghost" data-act="copy-oneliner"><svg class="icon"><use href="#qpwon-copy"></use></svg> Copia 1-frase</button>
+                <button class="btn ghost" data-act="use-email"><svg class="icon"><use href="#qpwon-email"></use></svg> Usa in Email</button>
+                <button class="btn ghost" data-act="use-wa"><svg class="icon"><use href="#qpwon-chat"></use></svg> Usa in WhatsApp</button>
+              </div>
+            </article>
+
+            <article class="case-card" data-case="rms">
+              <header><strong>RMS Polimedical</strong> • Visibilità & nuovi pazienti</header>
+              <ul>
+                <li><strong>Problema:</strong> centro nuovo, bisogno di differenziarsi online.</li>
+                <li><strong>Soluzione:</strong> Profilo centro + prestazioni prenotabili.</li>
+                <li><strong>Risultati:</strong> 13% pazienti nuovi; 5/5 recensioni; +60 prestazioni.</li>
+                <li><strong>One-liner:</strong> “Catalogo prestazioni + reputazione = nuovi pazienti che prenotano da soli.”</li>
+                <li><strong>CTA:</strong> “15’ per set-up veloce?”</li>
+              </ul>
+              <div class="case-actions">
+                <button class="btn ghost" data-act="copy-oneliner"><svg class="icon"><use href="#qpwon-copy"></use></svg> Copia 1-frase</button>
+                <button class="btn ghost" data-act="use-email"><svg class="icon"><use href="#qpwon-email"></use></svg> Usa in Email</button>
+                <button class="btn ghost" data-act="use-wa"><svg class="icon"><use href="#qpwon-chat"></use></svg> Usa in WhatsApp</button>
+              </div>
+            </article>
+
+            <article class="case-card" data-case="checkup">
+              <header><strong>Check Up Centre</strong> • Segreteria & chiamate</header>
+              <ul>
+                <li><strong>Problema:</strong> picchi telefonici, passaggi di consegna.</li>
+                <li><strong>Soluzione:</strong> MioDottore Phone (traccia, riascolto, statistiche).</li>
+                <li><strong>Risultati:</strong> ~1% no-show; >1.400 recensioni; front-office più sereno.</li>
+                <li><strong>One-liner:</strong> “Centralino smart = pazienti seguiti meglio e segreteria più leggera.”</li>
+                <li><strong>CTA:</strong> “Vediamo come applicarlo?”</li>
+              </ul>
+              <div class="case-actions">
+                <button class="btn ghost" data-act="copy-oneliner"><svg class="icon"><use href="#qpwon-copy"></use></svg> Copia 1-frase</button>
+                <button class="btn ghost" data-act="use-email"><svg class="icon"><use href="#qpwon-email"></use></svg> Usa in Email</button>
+                <button class="btn ghost" data-act="use-wa"><svg class="icon"><use href="#qpwon-chat"></use></svg> Usa in WhatsApp</button>
+              </div>
+            </article>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- ====== VIEW: IMPOSTAZIONI ====== -->
+    <section id="view-impostazioni" class="view" aria-labelledby="tab-impostazioni">
+      <div class="settings-grid">
+        <div class="card">
+          <h3 class="card-title"><svg class="icon"><use href="#qpwon-coins"></use></svg> Quota & conversione</h3>
+          <div class="form-grid">
+            <label>Target mensile (€)
+              <input id="set-target" type="number" min="0" step="100" placeholder="Es. 8000">
+            </label>
+            <label>% conversione → chiusure
+              <input id="set-conv" type="number" min="0" max="100" step="1" placeholder="Es. 30">
+            </label>
+            <label>Valore medio appuntamento (€)
+              <input id="set-meet-value" type="number" min="0" step="50" placeholder="Es. 400">
+            </label>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title"><svg class="icon"><use href="#qpwon-settings"></use></svg> Pesi dello scoring</h3>
+          <div class="form-grid">
+            <label>Dolore (0–40)
+              <input id="w-dolore" type="range" min="0" max="40" value="30">
+            </label>
+            <label>Urgenza (0–25)
+              <input id="w-urgenza" type="range" min="0" max="25" value="15">
+            </label>
+            <label>Valore (0–25)
+              <input id="w-valore" type="range" min="0" max="25" value="15">
+            </label>
+            <label>Recency (-10…+10)
+              <input id="w-recency" type="range" min="-10" max="10" value="0">
+            </label>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title"><svg class="icon"><use href="#qpwon-email"></use></svg> Firma email</h3>
+          <textarea id="set-firma" rows="6" placeholder="Nome • Ruolo • Docplanner/MioDottore • contatti • link"></textarea>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title"><svg class="icon"><use href="#qpwon-chat"></use></svg> WhatsApp</h3>
+          <div class="form-grid">
+            <label>Numero per test (+39…)
+              <input id="set-wa-number" type="tel" placeholder="+39…">
+            </label>
+            <div class="actions-start">
+              <button class="btn ghost" id="btn-wa-web"><svg class="icon"><use href="#qpwon-external-link"></use></svg> Apri WhatsApp Web</button>
+              <button class="btn ghost" id="btn-wa-test"><svg class="icon"><use href="#qpwon-chat"></use></svg> Invia test</button>
+            </div>
+            <p class="muted small">Se il browser blocca i pop-up, abilitali per questo sito.</p>
+          </div>
+        </div>
+
+        <div class="actions-end wide">
+          <button class="btn primary" id="btn-save-settings"><svg class="icon"><use href="#qpwon-save"></use></svg> Salva impostazioni</button>
+        </div>
+      </div>
+    </section>
   </main>
 
-  <!-- MODALS -->
-  <div id="modalLead" class="modal hidden">
-    <div class="dialog">
-      <button class="close" data-close="modalLead">×</button>
-      <h3>Nuovo lead</h3>
-      <div class="grid2">
-        <label>Struttura* <input id="mStruttura" required/></label>
-        <label>Città* <input id="mCitta" required/></label>
-      </div>
-      <div class="grid2">
-        <label>Referente <input id="mReferente"/></label>
-        <label>Telefono <input id="mTelefono" placeholder="es. 39333..."/></label>
-      </div>
-      <div class="grid2">
-        <label>Email <input id="mEmail"/></label>
+  <!-- ====== MODALI ====== -->
+  <!-- Nuovo lead -->
+  <dialog id="modal-new-lead" class="modal">
+    <form method="dialog" class="modal-content" id="form-new-lead">
+      <header class="modal-head">
+        <h3><svg class="icon"><use href="#qpwon-plus"></use></svg> Nuovo lead</h3>
+        <button class="icon-btn" value="close" aria-label="Chiudi"><svg class="icon"><use href="#qpwon-x-circle"></use></svg></button>
+      </header>
+      <div class="form-grid two">
+        <label>Struttura* <input name="struttura" required placeholder="Nome struttura"></label>
+        <label>Città* <input name="citta" required placeholder="Bologna"></label>
+        <label>Referente <input name="referente" placeholder="Nome Cognome"></label>
+        <label>Telefono <input name="telefono" type="tel" placeholder="+39…"></label>
+        <label>Email <input name="email" type="email" placeholder="nome@dominio.it"></label>
         <label>Prodotto
-          <select id="mProdotto">
-            <option value="GipoNext">GipoNext (bundle)</option>
-            <option value="CRM MioDottore">CRM MioDottore</option>
-            <option value="Visibilità MioDottore">Visibilità MioDottore</option>
+          <select name="prodotto">
+            <option value="">—</option>
+            <option>GipoNext</option>
+            <option>MioDottore CRM</option>
+            <option>Visibilità</option>
+            <option>MioDottore Phone</option>
           </select>
         </label>
+        <label>Valore stimato €/m <input name="valore" type="number" min="0" step="50"></label>
+        <label>Tag <input name="tag" placeholder="virgola,separati"></label>
       </div>
-      <div class="grid2">
-        <label>Valore potenziale € <input id="mValore" type="number" min="0" step="50"/></label>
-        <label>Tag (virgole) <input id="mTags" placeholder="es. 50+ medici, Vettore"/></label>
-      </div>
-      <label>Fonte/Referenza <input id="mFonte"/></label>
-      <h4 class="mt">Prequalifica</h4>
-      <div class="grid3">
-        <label>Tipologia
-          <select id="pTipologia">
-            <option value="">-</option>
-            <option>Studio</option>
-            <option>Poliambulatorio</option>
-            <option>Diagnostica</option>
-          </select>
-        </label>
-        <label>N. Medici <input id="pMedici" type="number" min="0"/></label>
-        <label>Software attuale <input id="pSW"/></label>
-      </div>
-      <div class="grid3">
-        <label>Dimensione
-          <select id="pDim">
-            <option value="">-</option>
-            <option>S</option><option>M</option><option>L</option>
-          </select>
-        </label>
-        <label>Canale richieste
-          <select id="pCanale">
-            <option value="">-</option>
-            <option>Telefono</option><option>Web</option><option>Misto</option>
-          </select>
-        </label>
-        <label>Vincoli <input id="pVincoli" placeholder="Convenzioni, reti..."/></label>
-      </div>
-      <div class="actions">
-        <button id="saveLead" class="btn primary">Salva</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="modalSlots" class="modal hidden">
-    <div class="dialog">
-      <button class="close" data-close="modalSlots">×</button>
-      <h3>Proponi/Appunta slot</h3>
-      <p>Scegli uno slot suggerito (modificabile in calendario):</p>
-      <div id="slotButtons" class="slot-grid"></div>
-      <div class="actions">
-        <button class="btn" id="sendSlotsEmail"><svg class="ico"><use href="#i-mail"/></svg> Invia via Email</button>
-        <button class="btn" id="sendSlotsWA"><svg class="ico"><use href="#i-wa"/></svg> Invia via WhatsApp</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="modalMail" class="modal hidden">
-    <div class="dialog">
-      <button class="close" data-close="modalMail">×</button>
-      <h3>Messaggio Email</h3>
-      <label>Oggetto <input id="mailSubject"/></label>
-      <label>Corpo <textarea id="mailBody" rows="9"></textarea></label>
-      <div class="actions">
-        <button id="openGmail" class="btn primary"><svg class="ico"><use href="#i-mail"/></svg> Apri Gmail</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="modalWA" class="modal hidden">
-    <div class="dialog">
-      <button class="close" data-close="modalWA">×</button>
-      <h3>WhatsApp — Messaggio in tempo reale</h3>
-      <div class="grid2">
-        <label>Numero (con prefisso) <input id="waPhone" placeholder="es. 39333..."/></label>
-        <label>Controllo <span id="waPhoneHint" style="display:block;color:#6b84b3;font-size:.85rem"></span></label>
-      </div>
-      <label>Messaggio
-        <textarea id="waBody" rows="8" placeholder="Scrivi qui il messaggio..."></textarea>
-      </label>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin:.4rem 0">
-        <div>
-          <button class="btn" id="waTplFreddo">Freddo</button>
-          <button class="btn" id="waTplTiepido">Tiepido</button>
-          <button class="btn" id="waTplCaldo">Caldo</button>
+      <fieldset class="fieldset">
+        <legend>Pre-qualifica</legend>
+        <div class="form-grid">
+          <label>N. medici <input name="nmedici" type="number" min="1" step="1"></label>
+          <label>Software attuale <input name="software" placeholder="—"></label>
+          <label><input type="checkbox" name="overbooking"> Overbooking / chiamate perse</label>
+          <label><input type="checkbox" name="visibilita"> Visibilità online da migliorare</label>
+          <label><input type="checkbox" name="urgenza"> Urgenza (scadenze / picco richieste)</label>
         </div>
-        <div id="waCount" style="color:#6b84b3;font-weight:800">0 caratteri</div>
+      </fieldset>
+      <footer class="modal-foot">
+        <button class="btn ghost" value="close"><svg class="icon"><use href="#qpwon-x-circle"></use></svg> Annulla</button>
+        <button class="btn primary" id="btn-create-lead"><svg class="icon"><use href="#qpwon-save"></use></svg> Crea lead</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- Proposta slot -->
+  <dialog id="modal-slots" class="modal">
+    <div class="modal-content">
+      <header class="modal-head">
+        <h3><svg class="icon"><use href="#qpwon-calendar-plus"></use></svg> Proponi/Appunta</h3>
+        <button class="icon-btn" data-close aria-label="Chiudi"><svg class="icon"><use href="#qpwon-x-circle"></use></svg></button>
+      </header>
+      <div class="slots">
+        <button class="slot-cta" id="slotpick-1">slot 1</button>
+        <button class="slot-cta" id="slotpick-2">slot 2</button>
       </div>
-      <div class="actions">
-        <button class="btn" id="waSanitize">Pulisci/accorcia</button>
-        <button class="btn primary" id="waOpen"><svg class="ico"><use href="#i-wa"/></svg> Apri WhatsApp</button>
+      <div class="modal-actions">
+        <button class="btn ghost" id="slot-email"><svg class="icon"><use href="#qpwon-email"></use></svg> Invia via Email</button>
+        <button class="btn ghost" id="slot-wa"><svg class="icon"><use href="#qpwon-chat"></use></svg> Invia via WhatsApp</button>
+        <button class="btn primary" id="slot-calendar"><svg class="icon"><use href="#qpwon-calendar"></use></svg> Apri Google Calendar</button>
       </div>
     </div>
-  </div>
+  </dialog>
 
-  <div id="modalPopup" class="modal hidden">
-    <div class="dialog">
-      <button class="close" data-close="modalPopup">×</button>
-      <h3>Pop-up bloccati</h3>
-      <p>Per completare l’azione devi <b>attivare i pop-up</b> per Gmail/WhatsApp.</p>
-      <ul class="list" style="margin-top:.5rem">
-        <li>Fai clic sull’icona a forma di blocco nella barra degli indirizzi</li>
-        <li>Consenti pop-up e reindirizzamenti</li>
-        <li>Ripeti l’azione</li>
-      </ul>
-      <div class="actions">
-        <button class="btn primary" data-close="modalPopup">Ok</button>
+  <!-- Email -->
+  <dialog id="modal-email" class="modal">
+    <div class="modal-content">
+      <header class="modal-head">
+        <h3><svg class="icon"><use href="#qpwon-email"></use></svg> Email</h3>
+        <button class="icon-btn" data-close aria-label="Chiudi"><svg class="icon"><use href="#qpwon-x-circle"></use></svg></button>
+      </header>
+      <label>Oggetto <input id="email-subject" type="text" placeholder="Oggetto…"></label>
+      <label>Corpo <textarea id="email-body" rows="10" placeholder="Testo email…"></textarea></label>
+      <footer class="modal-foot">
+        <button class="btn ghost" data-close><svg class="icon"><use href="#qpwon-x-circle"></use></svg> Chiudi</button>
+        <button class="btn primary" id="open-gmail"><svg class="icon"><use href="#qpwon-external-link"></use></svg> Apri Gmail</button>
+      </footer>
+    </div>
+  </dialog>
+
+  <!-- WhatsApp -->
+  <dialog id="modal-wa" class="modal">
+    <div class="modal-content">
+      <header class="modal-head">
+        <h3><svg class="icon"><use href="#qpwon-chat"></use></svg> WhatsApp</h3>
+        <button class="icon-btn" data-close aria-label="Chiudi"><svg class="icon"><use href="#qpwon-x-circle"></use></svg></button>
+      </header>
+      <div class="wa-templates">
+        <button class="chip" data-wa="freddo">Freddo</button>
+        <button class="chip" data-wa="tiepido">Tiepido</button>
+        <button class="chip" data-wa="caldo">Caldo</button>
+      </div>
+      <textarea id="wa-text" rows="10" placeholder="Testo WhatsApp…"></textarea>
+      <div class="modal-actions">
+        <button class="btn ghost" id="wa-clean"><svg class="icon"><use href="#qpwon-filter"></use></svg> Pulisci/accorcia</button>
+        <button class="btn ghost" id="wa-insert-case"><svg class="icon"><use href="#qpwon-case-study"></use></svg> Inserisci case</button>
+        <button class="btn primary" id="open-wa"><svg class="icon"><use href="#qpwon-external-link"></use></svg> Apri WhatsApp</button>
       </div>
     </div>
-  </div>
+  </dialog>
 
-  <div id="modalWAConnect" class="modal hidden">
-    <div class="dialog">
-      <button class="close" data-close="modalWAConnect">×</button>
-      <h3>Collegamento WhatsApp</h3>
-      <ol style="margin:.5rem 0 1rem 1.2rem;color:#4b5f8f">
-        <li>Apri WhatsApp Web/Desktop</li>
-        <li>Se richiesto, scansiona il QR dal tuo telefono</li>
-        <li>Invia un messaggio di test da qui</li>
-      </ol>
-      <div class="actions" style="margin-bottom:.6rem">
-        <button class="btn" id="waOpenWeb">Apri WhatsApp Web</button>
-      </div>
-      <div class="grid2">
-        <label>Numero test <input id="waTestPhone" placeholder="es. 39333..."/></label>
-        <label>Messaggio test <input id="waTestMsg" placeholder="Ciao, test dal copilot"/></label>
-      </div>
-      <div class="actions">
-        <button class="btn primary" id="waSendTest">Invia test</button>
-      </div>
+  <!-- Popup blocker -->
+  <dialog id="modal-popup" class="modal">
+    <div class="modal-content">
+      <header class="modal-head">
+        <h3><svg class="icon"><use href="#qpwon-alert-triangle"></use></svg> Abilita i pop-up</h3>
+        <button class="icon-btn" data-close aria-label="Chiudi"><svg class="icon"><use href="#qpwon-x-circle"></use></svg></button>
+      </header>
+      <p>Il browser ha bloccato l’apertura. Abilita i pop-up per Gmail/WhatsApp e riprova.</p>
+      <footer class="modal-foot">
+        <button class="btn primary" data-close><svg class="icon"><use href="#qpwon-check-circle"></use></svg> Ok</button>
+      </footer>
     </div>
-  </div>
+  </dialog>
 
-  <!-- TEMPLATE CARD -->
-  <template id="tpl-card">
-    <li class="lead-card" draggable="true">
-      <div class="head">
-        <div class="title"></div>
-        <div class="heat dot"></div>
-      </div>
-      <div class="meta"></div>
-      <div class="tags"></div>
-      <div class="actions"></div>
-    </li>
-  </template>
+  <!-- Toasts -->
+  <div id="toasts" class="toasts" aria-live="polite" aria-atomic="true"></div>
 
-  <div id="toast" class="toast"></div>
-
-  <script src="script.js"></script>
+  <!-- Scripts -->
+  <script src="script.js" defer></script>
 </body>
 </html>
